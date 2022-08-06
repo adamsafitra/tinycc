@@ -974,9 +974,18 @@ LIBTCCAPI int tcc_set_output_type(TCCState *s, int output_type)
     /* add libc crt1/crti objects */
     if ((output_type == TCC_OUTPUT_EXE || output_type == TCC_OUTPUT_DLL) &&
         !s->nostdlib) {
-        if (output_type != TCC_OUTPUT_DLL)
+#ifdef __ANDROID__
+        if (output_type != TCC_OUTPUT_DLL) {
+            tcc_add_crt(s, "crtbegin_dynamic.o");
+        } else {
+            tcc_add_crt(s, "crtbegin_so.o");
+        }
+#else
+        if (output_type != TCC_OUTPUT_DLL) {
             tcc_add_crt(s, "crt1.o");
+        }
         tcc_add_crt(s, "crti.o");
+#endif // __ANDROID__
     }
 #endif
     return 0;
